@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">เครื่องคำนวณซับเน็ต</string>
+    <string name="tab_calculator">คำนวณ</string>
+    <string name="tab_table">ตารางซับเน็ต</string>
+    <string name="hint_ip_input">IP / CIDR (เช่น 192.168.1.10/24)</string>
+    <string name="btn_calculate">คำนวณ</string>
+    <string name="btn_clear">ล้าง</string>
+    <string name="copied_to_clipboard">คัดลอกแล้ว</string>
+    <string name="result_network">Network Address</string>
+    <string name="result_broadcast">Broadcast Address</string>
+    <string name="result_first_host">First Host</string>
+    <string name="result_last_host">Last Host</string>
+    <string name="result_netmask">Subnet Mask</string>
+    <string name="result_wildcard">Wildcard Mask</string>
+    <string name="result_total_ips">จำนวน IP ทั้งหมด</string>
+    <string name="result_usable_hosts">Host ที่ใช้ได้</string>
+    <string name="result_class">IP Class</string>
+    <string name="result_type">ประเภท</string>
+    <string name="result_cidr">CIDR</string>
+    <string name="result_binary">Binary Mask</string>
+    <string name="filter_all">ทั้งหมด (/0–/32)</string>
+    <string name="filter_common">ที่ใช้บ่อย (/8–/30)</string>
+    <string name="hint_search">ค้นหา CIDR หรือ mask…</string>
+    <string name="col_cidr">CIDR</string>
+    <string name="col_mask">Netmask</string>
+    <string name="col_hosts">Usable Hosts</string>
+    <string name="col_total">Total IPs</string>
+    <string name="col_class">Class</string>
+    <string name="quick_examples">ตัวอย่างด่วน</string>
+    <string name="private_label">Private</string>
+    <string name="public_label">Public</string>
+    <string name="error_title">ไม่สามารถคำนวณได้</string>
+    <string name="result_header">ผลลัพธ์</string>
+</resources>

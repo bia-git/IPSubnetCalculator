@@ -1,0 +1,41 @@
+package com.example.ipsubnetcalc.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Light scheme — calm indigo / teal accents that read well for data tables.
+val LightPrimary = Color(0xFF4F46E5)
+val LightOnPrimary = Color(0xFFFFFFFF)
+val LightPrimaryContainer = Color(0xFFE0E7FF)
+val LightOnPrimaryContainer = Color(0xFF1E1B4B)
+val LightSecondary = Color(0xFF0D9488)
+val LightOnSecondary = Color(0xFFFFFFFF)
+val LightSecondaryContainer = Color(0xFFCCFBF1)
+val LightOnSecondaryContainer = Color(0xFF134E4A)
+val LightBackground = Color(0xFFF8FAFC)
+val LightOnBackground = Color(0xFF0F172A)
+val LightSurface = Color(0xFFFFFFFF)
+val LightOnSurface = Color(0xFF0F172A)
+val LightSurfaceVariant = Color(0xFFE2E8F0)
+val LightOnSurfaceVariant = Color(0xFF475569)
+val LightError = Color(0xFFDC2626)
+val LightOnError = Color(0xFFFFFFFF)
+val LightOutline = Color(0xFFCBD5E1)
+
+// Dark scheme.
+val DarkPrimary = Color(0xFFA5B4FC)
+val DarkOnPrimary = Color(0xFF1E1B4B)
+val DarkPrimaryContainer = Color(0xFF3730A3)
+val DarkOnPrimaryContainer = Color(0xFFE0E7FF)
+val DarkSecondary = Color(0xFF5EEAD4)
+val DarkOnSecondary = Color(0xFF134E4A)
+val DarkSecondaryContainer = Color(0xFF115E59)
+val DarkOnSecondaryContainer = Color(0xFFCCFBF1)
+val DarkBackground = Color(0xFF0B1120)
+val DarkOnBackground = Color(0xFFE2E8F0)
+val DarkSurface = Color(0xFF111827)
+val DarkOnSurface = Color(0xFFE2E8F0)
+val DarkSurfaceVariant = Color(0xFF334155)
+val DarkOnSurfaceVariant = Color(0xFFCBD5E1)
+val DarkError = Color(0xFFF87171)
+val DarkOnError = Color(0xFF450A0A)
+val DarkOutline = Color(0xFF475569)
