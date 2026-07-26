@@ -47,14 +47,14 @@ private enum class TableFilter(val label: String) {
     COMMON("ที่ใช้บ่อย (/8–/30)")
 }
 
-// Fixed column widths in dp — wide enough so netmask "255.255.255.255"
-// and large counts like "4,294,967,294" never get truncated. The whole
-// table scrolls horizontally when it doesn't fit the screen.
-private val CIDR_WIDTH = 70.dp
-private val MASK_WIDTH = 170.dp
-private val HOSTS_WIDTH = 130.dp
-private val TOTAL_WIDTH = 130.dp
-private val CLASS_WIDTH = 70.dp
+// Column widths in dp — sized to fit the longest content tightly so the
+// table fits most phone screens (~390dp) without scrolling. Only very
+// narrow screens (older / small devices) will need horizontal scroll.
+private val CIDR_WIDTH = 56.dp
+private val MASK_WIDTH = 124.dp   // fits "255.255.255.255" at 13sp
+private val HOSTS_WIDTH = 96.dp    // fits "16,777,214" (the typical max in /8–/30)
+private val TOTAL_WIDTH = 96.dp
+private val CLASS_WIDTH = 52.dp
 
 @Composable
 fun SubnetTableScreen(
@@ -149,7 +149,7 @@ private fun HeaderRow(scrollState: androidx.compose.foundation.ScrollState) {
             .horizontalScroll(scrollState)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             HeaderCell("CIDR", CIDR_WIDTH)
@@ -177,7 +177,7 @@ private fun DataRow(
         Row(
             modifier = Modifier
                 .clickable { onPickCidr("0.0.0.0/${row.cidr}") }
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             DataCell(
