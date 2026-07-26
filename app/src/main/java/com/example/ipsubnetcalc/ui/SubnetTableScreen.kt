@@ -1,6 +1,7 @@
 package com.example.ipsubnetcalc.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.FilterChip
@@ -34,7 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ipsubnetcalc.core.SubnetTable
@@ -44,6 +46,15 @@ private enum class TableFilter(val label: String) {
     ALL("ทั้งหมด (/0–/32)"),
     COMMON("ที่ใช้บ่อย (/8–/30)")
 }
+
+// Fixed column widths in dp — wide enough so netmask "255.255.255.255"
+// and large counts like "4,294,967,294" never get truncated. The whole
+// table scrolls horizontally when it doesn't fit the screen.
+private val CIDR_WIDTH = 70.dp
+private val MASK_WIDTH = 170.dp
+private val HOSTS_WIDTH = 130.dp
+private val TOTAL_WIDTH = 130.dp
+private val CLASS_WIDTH = 70.dp
 
 @Composable
 fun SubnetTableScreen(
@@ -77,7 +88,7 @@ fun SubnetTableScreen(
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "แตะแถวเพื่อนำ CIDR ไปคำนวณ",
+            text = "แตะแถวเพื่อนำ CIDR ไปคำนวณ • ปัดซ้าย-ขวาเพื่อดูคอลัมน์",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -111,51 +122,16 @@ fun SubnetTableScreen(
 
         Spacer(Modifier.height(10.dp))
 
-        // Header row
-        HeaderRow()
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            items(rows, key = { it.cidr }) { row ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { onPickCidr("0.0.0.0/${row.cidr}") }
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Cell(
-                        text = "/${row.cidr}",
-                        weight = 0.85f,
-                        weightFont = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Cell(
-                        text = row.netmask,
-                        weight = 2.0f,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Cell(
-                        text = SubnetTable.formatCount(row.usableHosts),
-                        weight = 1.7f,
-                        align = TextAlign.End,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Cell(
-                        text = SubnetTable.formatCount(row.totalIps),
-                        weight = 1.7f,
-                        align = TextAlign.End,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Cell(
-                        text = row.ipClass,
-                        weight = 0.75f,
-                        align = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+        // Scrollable table: header + body share one horizontal scroll state
+        val scrollState = rememberScrollState()
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeaderRow(scrollState)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                items(rows, key = { it.cidr }) { row ->
+                    DataRow(row, scrollState, onPickCidr)
                 }
             }
         }
@@ -163,51 +139,112 @@ fun SubnetTableScreen(
 }
 
 @Composable
-private fun HeaderRow() {
+private fun HeaderRow(scrollState: androidx.compose.foundation.ScrollState) {
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer,
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp)
+            .horizontalScroll(scrollState)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Cell("CIDR", 0.85f, FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer, size = 11f)
-            Cell("Netmask", 2.0f, FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer, size = 11f)
-            Cell("Hosts", 1.7f, FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer, align = TextAlign.End, size = 11f)
-            Cell("Total", 1.7f, FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer, align = TextAlign.End, size = 11f)
-            Cell("Class", 0.75f, FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer, align = TextAlign.Center, size = 11f)
+            HeaderCell("CIDR", CIDR_WIDTH)
+            HeaderCell("Netmask", MASK_WIDTH)
+            HeaderCell("Hosts", HOSTS_WIDTH, TextAlign.End)
+            HeaderCell("Total IPs", TOTAL_WIDTH, TextAlign.End)
+            HeaderCell("Class", CLASS_WIDTH, TextAlign.Center)
         }
     }
 }
 
-/**
- * Single table cell. Uses a smaller font (default 12sp) with [maxLines] = 1 and
- * [TextOverflow.Ellipsis] so big numbers like "16,777,214" never wrap or
- * overflow the row. Callers can override the size for header cells.
- */
 @Composable
-private fun androidx.compose.foundation.layout.RowScope.Cell(
+private fun DataRow(
+    row: SubnetTable.Row,
+    scrollState: androidx.compose.foundation.ScrollState,
+    onPickCidr: (String) -> Unit
+) {
+    Surface(
+        color = Color.Transparent,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .horizontalScroll(scrollState)
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable { onPickCidr("0.0.0.0/${row.cidr}") }
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DataCell(
+                text = "/${row.cidr}",
+                width = CIDR_WIDTH,
+                weight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            DataCell(
+                text = row.netmask,
+                width = MASK_WIDTH,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            DataCell(
+                text = SubnetTable.formatCount(row.usableHosts),
+                width = HOSTS_WIDTH,
+                align = TextAlign.End,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            DataCell(
+                text = SubnetTable.formatCount(row.totalIps),
+                width = TOTAL_WIDTH,
+                align = TextAlign.End,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            DataCell(
+                text = row.ipClass,
+                width = CLASS_WIDTH,
+                align = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeaderCell(
     text: String,
-    weight: Float,
-    weightFont: FontWeight = FontWeight.Normal,
-    color: Color = Color.Unspecified,
-    mono: Boolean = true,
-    align: TextAlign = TextAlign.Start,
-    size: Float = 12f
+    width: androidx.compose.ui.unit.Dp,
+    align: TextAlign = TextAlign.Start
 ) {
     Text(
         text = text,
-        fontFamily = if (mono) MonoFamily else FontFamily.Default,
-        fontWeight = weightFont,
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        textAlign = align,
+        fontSize = 13.sp,
+        modifier = Modifier.width(width)
+    )
+}
+
+@Composable
+private fun DataCell(
+    text: String,
+    width: androidx.compose.ui.unit.Dp,
+    weight: FontWeight = FontWeight.Normal,
+    color: Color = Color.Unspecified,
+    align: TextAlign = TextAlign.Start
+) {
+    Text(
+        text = text,
+        fontFamily = MonoFamily,
+        fontWeight = weight,
         color = color,
         textAlign = align,
-        fontSize = size.sp,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier
-            .weight(weight)
-            .padding(end = 4.dp)
+        fontSize = 13.sp,
+        modifier = Modifier.width(width)
     )
 }
